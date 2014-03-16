@@ -1,12 +1,33 @@
 #!/usr/bin/env node
 var Bird = require('bird');
 
+validateOauthPresence()
+
 var oauth = {
   "consumer_key": process.env.TW_CONSUMER_KEY,
   "consumer_secret": process.env.TW_CONSUMER_SECRET,
   "token": process.env.TW_TOKEN,
   "token_secret": process.env.TW_TOKEN_SECRET
 };
+
+function validateOauthPresence() {
+  var errors = []
+
+  [
+    'TW_CONSUMER_KEY'
+    'TW_CONSUMER_SECRET',
+    'TW_TOKEN',
+    'TW_TOKEN_SECRET'
+  ].forEach(function(v){
+    if (!process.env[v]) {
+      errors.push("Missing environment var "+v);
+    }
+  });
+
+  if (errors.length) {
+    console.log(errors.join(", "))
+  }
+}
 
 status = process.argv.map(function(val, i) {
   if (i != 0 && i != 1) {
