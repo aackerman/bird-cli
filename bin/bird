@@ -1,51 +1,58 @@
 #!/usr/bin/env node
 var Bird = require('bird');
 
-validateOauthPresence()
-
-var oauth = {
-  "consumer_key": process.env.TW_CONSUMER_KEY,
-  "consumer_secret": process.env.TW_CONSUMER_SECRET,
-  "token": process.env.TW_TOKEN,
-  "token_secret": process.env.TW_TOKEN_SECRET
-};
-
-function validateOauthPresence() {
-  var errors = []
-
-  [
-    'TW_CONSUMER_KEY'
-    'TW_CONSUMER_SECRET',
-    'TW_TOKEN',
-    'TW_TOKEN_SECRET'
-  ].forEach(function(v){
-    if (!process.env[v]) {
-      errors.push("Missing environment var "+v);
+var BirdCLI = {
+  errors: [],
+  run: function() {
+    this._validations();
+    if (!this.isValid()) {
+      console.log(this.errors.join(', '));
+      return;
     }
-  });
 
-  if (errors.length) {
-    console.log(errors.join(", "))
-  }
-}
+    oauth = {
+      consumer_key: process.env.TW_CONSUMER_KEY,
+      consumer_secret: process.env.TW_CONSUMER_SECRET,
+      token: process.env.TW_TOKEN,
+      token_secret: process.env.TW_TOKEN_SECRET
+    };
 
-status = process.argv.map(function(val, i) {
-  if (i != 0 && i != 1) {
-    return val
-  }
-}).join(' ');
+    status = process.argv.map(function(val, i) {
+      if (i != 0 && i != 1) {
+        return val
+      }
+    }).join(' ');
 
-if (status.length < 140) {
-  Bird.tweets.update({
-    oauth: oauth,
-    status: status
-  }, function(err, body, r){
-    if (err) {
+    if (status.length < 140) {
+      Bird.tweets.update({
+        oauth: oauth,
+        status: status
+      }, function(err, body, r){
+        if (err) {
+          console.log(err, body, r)
+        } else {
+          console.log("posted: " + status)
+        }
+      })
     } else {
-      console.log("posted: " + status)
+      console.log("Status must be less than 140 characters")
     }
-  })
-} else {
-  console.log("Status must be less than 140 characters")
+  },
+  isValid: function() {
+    return this.errors.length == 0;
+  },
+  _validations: function() {
+    [
+      'TW_CONSUMER_KEY',
+      'TW_CONSUMER_SECRET',
+      'TW_TOKEN',
+      'TW_TOKEN_SECRET'
+    ].forEach(function(v) {
+      if (!process.env[v]) {
+        this.errors.push("Missing environment var "+v);
+      }
+    }.bind(this));
+  }
 }
 
+BirdCLI.run();
