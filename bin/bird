@@ -5,6 +5,7 @@ var BirdCLI = {
   errors: [],
   run: function() {
     this._validations();
+
     if (!this.isValid()) {
       console.log(this.errors.join(', '));
       return;
@@ -42,6 +43,7 @@ var BirdCLI = {
     return this.errors.length == 0;
   },
   _validations: function() {
+    this.errors = [];
     [
       'TW_CONSUMER_KEY',
       'TW_CONSUMER_SECRET',
